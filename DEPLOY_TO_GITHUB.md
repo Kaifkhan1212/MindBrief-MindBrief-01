@@ -1,6 +1,6 @@
 # Deploy to GitHub Instructions
 
-This guide will help you push all project files to your GitHub repository at `https://github.com/Ogshub/MindBrief-AI_Summarizer`.
+This guide will help you push all project files to your GitHub repository at `https://github.com/Kaifkhan1212`.
 
 ## ⚠️ Important: Clearing Existing Repository
 
