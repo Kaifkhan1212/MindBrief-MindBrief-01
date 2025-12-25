@@ -22,10 +22,10 @@ git init
 
 ```bash
 # Add your GitHub repository as remote origin
-git remote add origin https://github.com/Ogshub/MindBrief-AI_Summarizer.git
+git remote add origin https://github.com/Kaifkhan1212/MindBrief-MindBrief-01.git
 
 # If remote already exists, update it:
-git remote set-url origin https://github.com/Ogshub/MindBrief-AI_Summarizer.git
+git remote set-url origin https://github.com/Kaifkhan1212/MindBrief-MindBrief-01.git
 ```
 
 ### Step 3: Stage All Files
@@ -89,7 +89,7 @@ If you have GitHub CLI installed:
 gh auth login
 
 # Create or update repository
-gh repo create Ogshub/MindBrief-AI_Summarizer --public --source=. --remote=origin --push
+gh repo create Kaifkhan1212/MindBrief-AI_Summarizer --public --source=. --remote=origin --push
 ```
 
 ## Troubleshooting
@@ -101,7 +101,7 @@ gh repo create Ogshub/MindBrief-AI_Summarizer --public --source=. --remote=origi
 git remote remove origin
 
 # Add it again
-git remote add origin https://github.com/Ogshub/MindBrief-AI_Summarizer.git
+git remote add origin https://github.com/Kaifkhan1212/MindBrief-MindBrief-01.git
 ```
 
 ### If you get authentication errors:
@@ -146,7 +146,7 @@ git ls-files | xargs ls -la | sort -k5 -rn | head -20
 
 1. **Clone the repository** on another machine:
    ```bash
-   git clone https://github.com/Ogshub/MindBrief-AI_Summarizer.git
+   git clone https://github.com/Kaifkhan1212/MindBrief-MindBrief-01.git
    cd MindBrief-AI_Summarizer
    ```
 
