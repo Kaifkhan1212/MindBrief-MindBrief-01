@@ -113,25 +113,103 @@ router.post("/", async (req, res) => {
         if (links.length >= 10) break;
       }
 
-      // If DuckDuckGo doesn't work well, provide fallback top websites
+      // If DuckDuckGo doesn't work well, try Bing search
       if (links.length === 0) {
-        // Fallback: Provide popular websites that likely have content on the topic
-        const topDomains = [
-          "wikipedia.org",
-          "reddit.com",
-          "medium.com",
-          "github.com",
-          "stackoverflow.com",
-          "youtube.com",
-          "quora.com",
-          "news.ycombinator.com",
+        console.log("DuckDuckGo returned no results, trying Bing...");
+        try {
+          const bingResponse = await axios.get(
+            `https://www.bing.com/search?q=${searchQuery}`,
+            {
+              headers: {
+                "User-Agent":
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+              },
+              timeout: 10000,
+            }
+          );
+
+          const $bing = cheerio.load(bingResponse.data);
+
+          $bing("li.b_algo h2 a, .b_algo a").each((index, element) => {
+            if (links.length >= 10) return false;
+
+            let url = $bing(element).attr("href");
+            const title = $bing(element).text().trim();
+
+            if (!url || !title || title.length < 5) return;
+
+            // Skip search engine URLs
+            if (
+              url.includes("bing.com") ||
+              url.includes("microsoft.com/bing") ||
+              url.includes("google.com/search") ||
+              url.includes("duckduckgo.com")
+            ) {
+              return;
+            }
+
+            // Ensure absolute URL
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+              return;
+            }
+
+            if (seenUrls.has(url)) return;
+            seenUrls.add(url);
+
+            links.push({
+              url: url,
+              title: title,
+            });
+          });
+
+          console.log(`Bing returned ${links.length} results`);
+        } catch (bingError) {
+          console.error("Bing search failed:", bingError.message);
+        }
+      }
+
+      // If still no results, use direct Wikipedia/popular site searches
+      if (links.length === 0) {
+        console.log("Using direct site searches as fallback...");
+        // Search Wikipedia directly
+        try {
+          const wikiResponse = await axios.get(
+            `https://en.wikipedia.org/w/api.php?action=opensearch&search=${searchQuery}&limit=5&format=json`,
+            {
+              timeout: 5000,
+              headers: {
+                "User-Agent": "MindBrief/1.0 (https://github.com/mindbrief; contact@mindbrief.com)"
+              }
+            }
+          );
+
+          if (wikiResponse.data && wikiResponse.data[3]) {
+            wikiResponse.data[3].forEach((url, idx) => {
+              if (url && wikiResponse.data[1][idx]) {
+                links.push({
+                  url: url,
+                  title: `Wikipedia: ${wikiResponse.data[1][idx]}`,
+                });
+              }
+            });
+          }
+        } catch (wikiError) {
+          console.error("Wikipedia API failed:", wikiError.message);
+        }
+
+        // Add some reliable knowledge sources
+        const fallbackSources = [
+          { url: `https://www.britannica.com/search?query=${searchQuery}`, title: `Britannica - ${topic}` },
+          { url: `https://www.bbc.com/search?q=${searchQuery}`, title: `BBC - ${topic}` },
+          { url: `https://www.reuters.com/search/news?blob=${searchQuery}`, title: `Reuters News - ${topic}` },
         ];
 
-        topDomains.forEach((domain) => {
-          links.push({
-            url: `https://www.google.com/search?q=site:${domain}+${searchQuery}`,
-            title: `Search ${domain} for "${topic}"`,
-          });
+        fallbackSources.forEach(source => {
+          if (!seenUrls.has(source.url)) {
+            links.push(source);
+          }
         });
       }
 
