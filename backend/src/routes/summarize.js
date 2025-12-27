@@ -92,7 +92,7 @@ router.post("/", async (req, res) => {
           const dom = new JSDOM($.html(), {
             url: cleanUrl,
           });
-          
+
           const reader = new Readability(dom.window.document);
           const article = reader.parse();
 
@@ -117,8 +117,8 @@ router.post("/", async (req, res) => {
 
         // Fallback: If Readability failed or returned too little content, try simplified extraction
         if (!content || content.length < 100) {
-           console.log("Readability returned insufficient content, using fallback extraction");
-           // Fallback: extract paragraphs and headings from body
+          console.log("Readability returned insufficient content, using fallback extraction");
+          // Fallback: extract paragraphs and headings from body
           let contentElements = [];
           $(
             "body p, body h1, body h2, body h3, body h4, body h5, body h6, body li"
@@ -134,7 +134,7 @@ router.post("/", async (req, res) => {
                   /^(skip|menu|navigation|footer|header|cookie|privacy)/i
                 )
               ) {
-                  contentElements.push(text);
+                contentElements.push(text);
               }
             });
           content = contentElements.join("\n\n");
@@ -163,9 +163,8 @@ router.post("/", async (req, res) => {
         return {
           url: url.trim(),
           title: "Error",
-          content: `Failed to scrape content from this URL: ${
-            error.message
-          }. Status: ${error.response?.status || "N/A"}`,
+          content: `Failed to scrape content from this URL: ${error.message
+            }. Status: ${error.response?.status || "N/A"}`,
         };
       }
     });
@@ -189,8 +188,7 @@ router.post("/", async (req, res) => {
     scrapedContents.forEach((item, index) => {
       if (!validContents.includes(item)) {
         console.log(
-          `Failed scrape ${index + 1}: ${item.url} - Content length: ${
-            item.content?.length || 0
+          `Failed scrape ${index + 1}: ${item.url} - Content length: ${item.content?.length || 0
           }`
         );
       }
@@ -218,9 +216,8 @@ router.post("/", async (req, res) => {
     // Combine all content for Gemini (with source info)
     const combinedContent = validContents
       .map((item, index) => {
-        return `Source ${index + 1} - ${item.title} (${item.url}):\n${
-          item.content
-        }\n\n`;
+        return `Source ${index + 1} - ${item.title} (${item.url}):\n${item.content
+          }\n\n`;
       })
       .join("\n---\n\n");
 
@@ -231,11 +228,9 @@ router.post("/", async (req, res) => {
 
       // Introduction
       summary += `OVERVIEW\n\n`;
-      summary += `This document consolidates information from ${
-        contents.length
-      } source${
-        contents.length > 1 ? "s" : ""
-      } about ${topic}. The following sections present key information, insights, and findings from these sources.\n\n`;
+      summary += `This document consolidates information from ${contents.length
+        } source${contents.length > 1 ? "s" : ""
+        } about ${topic}. The following sections present key information, insights, and findings from these sources.\n\n`;
       summary += `${"-".repeat(60)}\n\n`;
 
       // Combine all content into sections
@@ -362,11 +357,9 @@ router.post("/", async (req, res) => {
 
       // Note about sources (not in main content body)
       summary += `${"-".repeat(60)}\n\n`;
-      summary += `Note: This summary was compiled from ${
-        contents.length
-      } source${
-        contents.length > 1 ? "s" : ""
-      }. Source URLs are available in the sources section.\n`;
+      summary += `Note: This summary was compiled from ${contents.length
+        } source${contents.length > 1 ? "s" : ""
+        }. Source URLs are available in the sources section.\n`;
 
       return summary;
     };
@@ -393,7 +386,7 @@ router.post("/", async (req, res) => {
 
     // Use Gemini to summarize
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
       const prompt = `You are an expert researcher and technical writer. Based on the following content from multiple sources about "${topic}", create a comprehensive, well-organized single-page summary document that:
 
